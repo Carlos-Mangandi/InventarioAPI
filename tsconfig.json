@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "lib": [
+      "ES5",
+      "ES2016",
+      "DOM",
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "rootDir": "./src",
+    "emitDecoratorMetadata": true
+  }
+}
