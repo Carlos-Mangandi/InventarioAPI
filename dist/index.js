@@ -19,7 +19,6 @@ const data_source_1 = require("./data-source");
 dotenv_1.default.config();
 const server = new server_js_1.default();
 server.listen();
-// esto es una promesa
 data_source_1.AppDataSource.initialize().then((conection) => __awaiter(void 0, void 0, void 0, function* () {
     if (conection) {
         console.log(`==> Conection with data base successfully <==`);

@@ -1,48 +1,48 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
-import { Producto } from "../models/Producto";
-import { Proveedor } from "../models/Proveedor";
+import { Product } from "../models/Product";
+import { Supplier } from "../models/Supplier";
 import { error } from "console";
 import { json } from "stream/consumers";
 import { Like } from "typeorm";
 
-const productoRepository = AppDataSource.getRepository("Producto");
+const productRepository = AppDataSource.getRepository("Product");
 
-class ProductoController {
+class ProductController {
   //FUNCIONA
-  static createProducto = async (req: Request, resp: Response) => {
-    const { name, description, price, stock, proveedorId } = req.body;
-    const proveedorRepository = AppDataSource.getRepository(Proveedor);
-    let existingProveedor;
+  static createProduct = async (req: Request, resp: Response) => {
+    const { name, description, price, stock, supplierId } = req.body;
+    const supplierRepository = AppDataSource.getRepository(Supplier);
+    let existingSupplier;
     try {
-      if (proveedorId) {
-        existingProveedor = await proveedorRepository.findOne({
-          where: { id: proveedorId },
+      if (supplierId) {
+        existingSupplier = await supplierRepository.findOne({
+          where: { id: supplierId },
         });
-        if (!existingProveedor) {
+        if (!existingSupplier) {
           return resp.json({
             ok: false,
-            msg: `Supplier whit ID '${proveedorId} does not exist`,
+            message: `Supplier whit ID '${supplierId} does not exist`,
           });
         }
       } else {
-        if (existingProveedor?.rol && proveedorId) {
+        if (existingSupplier?.rol && supplierId) {
           return resp.json({
             ok: false,
-            msg: "Cannot assign supplier to a regular product",
+            message: "Cannot assign supplier to a regular product",
           });
         }
       }
 
-      const product = new Producto();
+      const product = new Product();
 
       (product.name = name),
       (product.description = description),
       (product.price = price),
       (product.stock = stock),
-      (product.proveedor = existingProveedor);
+      (product.supplier = existingSupplier);
 
-      await productoRepository.save(product);
+      await productRepository.save(product);
 
       return resp.json({
         ok: true,
@@ -59,19 +59,19 @@ class ProductoController {
   };
 
   //FUNCIONA
-  static getProductos = async (req: Request, resp: Response) => {
+  static getProducts = async (req: Request, resp: Response) => {
     const name = req.query.name || ""
-    const proveedor = req.query.proveedor || ""
+    const supplier = req.query.supplier || ""
 
     console.log(req.query);
     try {
-      const products = await productoRepository.find({
+      const products = await productRepository.find({
         where: { 
             state: true,             
             name: Like(`%${name}%`),
-            proveedor: { name: Like(`%${proveedor}%`) } 
+            supplier: { name: Like(`%${supplier}%`) } 
         },
-        relations: { proveedor: true },
+        relations: { supplier: true },
       });
       return products.length > 0
         ? resp.json({
@@ -92,20 +92,21 @@ class ProductoController {
   };
 
   //FUNCIONA
-  static byIdProducto = async (req: Request, resp: Response) => {
+  static byIdProduct = async (req: Request, resp: Response) => {
     const id = parseInt(req.params.id);
     try {
-      const product = await productoRepository.findOne({
+      const product = await productRepository.findOne({
         where: { id, state: true },
       });
       return product
         ? resp.json({
-            ok: true,
-            product,
-          }) : resp.json({ 
-                ok: false, 
-                message: "The id don't exist" 
-          });
+          ok: true,
+          product,
+        }) 
+        : resp.json({ 
+          ok: false, 
+          message: "The id don't exist" 
+      });
     } catch (error) {
       return resp.json({
         ok: false,
@@ -116,20 +117,17 @@ class ProductoController {
   };
 
   // FUNCIONA
-  static deleteProducto = async (req: Request, resp: Response) => {
+  static deleteProduct = async (req: Request, resp: Response) => {
     const id = parseInt(req.params.id);
     try {
-      const product = await productoRepository.findOne({
-        where: { 
-          id, 
-          state: true 
-        },
+      const product = await productRepository.findOne({
+        where: { id, state: true },
       });
       if (!product) {
         throw new Error("Not found");
       }
       product.state = false;
-      await productoRepository.save(product);
+      await productRepository.save(product);
       return resp.json({
         ok: true,
         STATUS_CODE: 200,
@@ -145,11 +143,11 @@ class ProductoController {
   };
 
   // FUNCIONA
-  static updateProducto = async (req: Request, resp: Response) => {
+  static updateProduct = async (req: Request, resp: Response) => {
     const id = parseInt(req.params.id);
     const { stock } = req.body;
     try {
-      const product = await productoRepository.findOne({
+      const product = await productRepository.findOne({
         where: { id, state: true },
       });
 
@@ -158,7 +156,7 @@ class ProductoController {
       }
 
       product.stock = stock;
-      await productoRepository.save(product);
+      await productRepository.save(product);
       return resp.json({
         ok: true,
         STATUS_CODE: 200,
@@ -175,4 +173,4 @@ class ProductoController {
   };
 }
 
-export default ProductoController;
+export default ProductController;

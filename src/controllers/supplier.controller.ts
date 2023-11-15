@@ -1,29 +1,29 @@
-import { Producto } from './../models/Producto';
-import { Proveedor } from '../models/Proveedor';
+import { Product } from '../models/Product';
+import { Supplier } from '../models/Supplier';
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { error } from "console";
 import { type } from "os";
 import { Like } from 'typeorm';
 
-const proveedorRepository = AppDataSource 
-    .getRepository("Proveedor"); 
+const supplierRepository = AppDataSource 
+    .getRepository("Supplier"); 
 
-class ProveedorController{
-    static createProveedor = async(req:Request, resp:Response)=>{
+class SupplierController{
+    static createSupplier = async(req:Request, resp:Response)=>{
         const { name, contact, direction, } = req.body
         try {
-            const proveedor = new Proveedor()
-            proveedor.name = name,
-            proveedor.contact = contact,
-            proveedor.direction = direction
+            const supplier = new Supplier()
+            supplier.name = name,
+            supplier.contact = contact,
+            supplier.direction = direction
 
-            await proveedorRepository.save(proveedor) 
+            await supplierRepository.save(supplier) 
 
             return resp.json({ 
                 ok: true, 
                 STATUS_CODE: 200, 
-                message: 'Proveedor was create with successfully'
+                message: 'Supplier was create with successfully'
             })
         } catch (error) {
             return resp.json({
@@ -34,21 +34,22 @@ class ProveedorController{
         }
     }
 
-    static getProveedores = async (req:Request, resp:Response)=>{
+    static getSuppliers = async (req:Request, resp:Response)=>{
         const name = req.query.name || ""
         console.log(req.query);
         try {
-            const proveedor = await proveedorRepository.find({ 
+            const supplier = await supplierRepository.find({ 
                 where: {
                     state:true,
                     name: Like(`%${name}%`)
                 },
             })
-            return proveedor.length>0 
+            return supplier.length>0 
                 ?resp.json({
                     ok:true, 
-                    proveedor
-                }) : resp.json({
+                    supplier
+                }) 
+                : resp.json({
                     ok:false, 
                     msg:'Not found'
                 })
@@ -60,17 +61,17 @@ class ProveedorController{
         }
     }
 
-    static byIdProveedor = async (req:Request, resp:Response)=>{
+    static byIdSupplier = async (req:Request, resp:Response)=>{
         const id = parseInt(req.params.id) 
         try {
-            const proveedor = await proveedorRepository.findOne({ 
+            const supplier = await supplierRepository.findOne({ 
                 where: {
                     id,  
                     state: true 
                 }
             })
-            return proveedor ? resp.json({ 
-                ok: true, proveedor
+            return supplier ? resp.json({ 
+                ok: true, supplier
             }) 
             : resp.json({ 
                 ok: false, 
@@ -84,21 +85,21 @@ class ProveedorController{
         }
     }
     
-    static deleteProveedor = async(req:Request, resp:Response)=>{
+    static deleteSupplier = async(req:Request, resp:Response)=>{
         const id = parseInt(req.params.id)
         try{
-            const proveedor = await proveedorRepository.findOne({where:{id, state: true}})
+            const supplier = await supplierRepository.findOne({where:{id, state: true}})
 
-            if(!proveedor){
+            if(!supplier){
                 throw new Error("Not found")
             }
-            proveedor.state = false;
+            supplier.state = false;
 
-            await proveedorRepository.save(proveedor)
+            await supplierRepository.save(supplier)
 
             return resp.json({ 
                 ok: true, 
-                msg: 'Proveedor was delete'
+                msg: 'Supplier was delete'
             })  
         }catch(error){
             return resp.json({ 
@@ -108,22 +109,22 @@ class ProveedorController{
         }
     }
     
-    static updateProveedor = async(req:Request, resp:Response)=>{
+    static updateSupplier = async(req:Request, resp:Response)=>{
         const id = parseInt(req.params.id)
         const {name, contact, direction} = req.body
         try{   
-            const proveedor = await proveedorRepository.findOne({ 
+            const supplier = await supplierRepository.findOne({ 
                 where: { id, state: true },})
 
             if(!name){
                 throw new Error('Not Found')
             }
 
-            proveedor.name = name,
-            proveedor.contact = contact,
-            proveedor.direction = direction
-            await proveedorRepository.save(proveedor)
-            return resp.json({ ok: true, STATUS_CODE:200, message: 'Proveedor was updated', proveedor})
+            supplier.name = name,
+            supplier.contact = contact,
+            supplier.direction = direction
+            await supplierRepository.save(supplier)
+            return resp.json({ ok: true, STATUS_CODE:200, message: 'Supplier was updated', supplier})
         }
         catch (error){
             return resp.json ({
@@ -135,5 +136,5 @@ class ProveedorController{
     }
 }
 
-export default ProveedorController
+export default SupplierController
 

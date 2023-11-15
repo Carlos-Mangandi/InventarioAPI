@@ -10,7 +10,6 @@ dotenv.config()
 const server = new Server()
     server.listen()
 
-    // esto es una promesa
     AppDataSource.initialize().then(async(conection) =>{
         if(conection){
             console.log(`==> Conection with data base successfully <==`)

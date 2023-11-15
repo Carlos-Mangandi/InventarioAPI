@@ -1,13 +1,13 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, RelationId} from "typeorm"
-import { Proveedor } from "./Proveedor"
+import { Supplier } from "./Supplier"
 
 @Entity()
-export class Producto{
+export class Product{
     @PrimaryGeneratedColumn("increment")
     id:number
 
-    @RelationId((producto: Producto)=>producto.proveedor)
-    proveedorId:number
+    @RelationId((product: Product)=>product.supplier)
+    supplierId:number
 
     @Column()
     name:string
@@ -24,6 +24,6 @@ export class Producto{
     @Column({default:true})
     state: boolean
 
-    @ManyToOne(()=>Proveedor)
-    proveedor: Proveedor
+    @ManyToOne(()=>Supplier)
+    supplier: Supplier
 }
