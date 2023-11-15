@@ -6,6 +6,9 @@ export class Product{
     @PrimaryGeneratedColumn("increment")
     id:number
 
+    @ManyToOne(()=>Supplier)
+    supplier: Supplier
+
     @RelationId((product: Product)=>product.supplier)
     supplierId:number
 
@@ -15,15 +18,12 @@ export class Product{
     @Column()
     description: string
 
-    @Column()
-    price: string
+    @Column({type:'decimal', precision: 5, scale:2, default:0,})
+    price: number
 
     @Column()
     stock: number
 
     @Column({default:true})
     state: boolean
-
-    @ManyToOne(()=>Supplier)
-    supplier: Supplier
 }

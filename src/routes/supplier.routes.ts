@@ -1,14 +1,16 @@
+import { Supplier } from './../models/Supplier';
+import { Customer } from './../models/Customer';
 import {} from 'express'
 import {Router} from 'express'
-import ProveedorController from '../controllers/supplier.controller'
+import SupplierController from '../controllers/supplier.controller';
 
 const router = Router()
-const proveedor = ProveedorController
+const supplier = SupplierController
 
-router.post("/", proveedor.createSupplier)
-router.get('/', proveedor.getSuppliers)
-router.get('/:id', proveedor.byIdSupplier)
-router.delete('/:id', proveedor.deleteSupplier)
-router.put('/:id', proveedor.updateSupplier)
+router.post("/", supplier.createSupplier)
+router.get('/', supplier.getSuppliers)
+router.get('/:id', supplier.byIdSupplier)
+router.delete('/:id', supplier.deleteSupplier)
+router.put('/:id', supplier.updateSupplier)
 
 export default router

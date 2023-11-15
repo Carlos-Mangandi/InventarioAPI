@@ -23,10 +23,10 @@ export class SaleDetail{
     @Column()
     amount : number
 
-    @Column()
+    @Column({type:'decimal', precision: 5, scale:2, default:0,})
     unitPrice: number
 
-    @Column()
+    @Column({type:'decimal', precision: 5, scale:2, default:0,})
     subTotal: number
 
     @Column({default:true})

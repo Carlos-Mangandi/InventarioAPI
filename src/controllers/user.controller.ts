@@ -1,144 +1,194 @@
-import { Request, Response } from "express";
-import { AppDataSource } from "../data-source";
-import { User } from "../models/User";
-import { error } from "console";
-import { Like } from "typeorm";
 
-const userRepository = AppDataSource 
-    .getRepository("User"); 
+import { error } from 'console';
+import { Request, Response } from 'express'
+import { AppDataSource } from '../data-source'
+import { User } from '../models/User'
+import { Role } from '../models/Role';
+import { Like, Not } from 'typeorm';
 
-class UserController{
-    static createUser = async(req:Request, resp:Response)=>{
-        const { name, lastName, email, password } = req.body 
+//Method by get
+class UsersController {
+
+    // save
+    static createUser = async (req: Request, res: Response) => {
+        const {name, lastName, email, password, rolId } = req.body
+        const repoUsers = AppDataSource.getRepository(User)
+        const repoRol = AppDataSource.getRepository(Role)
+        let existingRol
         try {
+            const userExist = await repoUsers.findOne({ where: { email } })
+            if (userExist) {
+                return res.json({ ok: false, 
+                    msg:  `Email ${email} already exists ` })
+            }
+
+            if (rolId) {
+                existingRol = await repoRol.findOne({ where: { id: rolId } })
+                if (!existingRol) {
+                    return res.json({
+                        ok: false,
+                        msg: `Role with ID '${rolId}' does not exist`,
+                    })
+                }
+            } else{
+                if(existingRol?.rol && rolId){
+                    return res.json({
+                        ok:false,
+                        msg: 'Cannot assing supplier to a regular user'
+                    })
+                }
+            }
+            
             const user = new User()
-            user.name = name,
-            user.lastName =lastName,
-            user.email = email,
+            user.name = name
+            user.lastName = lastName
+            user.email = email
             user.password = password
+            user.rol = existingRol
 
-            await userRepository.save(user)  
-
-            return resp.json({ 
-                ok: true, 
-                STATUS_CODE: 200, 
-                message: 'User was create with successfully'})
-        } 
-        catch (error) {
-            return resp.json({ 
-                ok: false, 
-                STATUS_CODE: 500,
-                message: `error = ${error.message}`
-            })         
+            await repoUsers.save(user)
+            return res.json({
+                ok: true,
+                msg: 'User was create',
+            });
+        }catch (error) {
+            return res.json({
+                ok: false,
+                msg: `Error => ${error}`,
+            });
         }
     }
 
-    static getUsers =async (req:Request, resp:Response) => {
+    static getUsers = async (req: Request, res: Response) => {
+        const repoUsers = AppDataSource.getRepository(User);
         const name = req.query.name || ""
-        const role = req.query.role || ""
-
+        // const role = req.query.role || ""
+        
         console.log(req.query);
         try {
-            const users = await userRepository.find({ 
+            const users = await repoUsers.find({
                 where: { 
                     state: true,
                     name: Like(`%${name}%`),
-                    role: { name: Like(`%${role}%`) } 
+                    // role: { name: Like(`%${role}%`) }
                 },
-                relations: { role: true },
-            })
+                // relations: { role: true }
+            });
 
             return users.length > 0
-                ? resp.json({ 
-                    ok: true, 
-                    message: 'list of users', users 
-                }) 
-                : resp.json({ 
-                    ok: false, 
-                    message: 'Not found', 
-                    users 
-                });
-        }catch (error) {
-            return resp.json({ 
-                ok: false, 
-                message: `error => ${error.message}`})
+                ? res.json({
+                    ok: true,
+                    msg: 'list of users',
+                    users
+                }) : res.json({ ok: false, msg: 'data not found', users });
         }
-    }
-
-    static byIdUser = async(req:Request, resp:Response)=>{
-        const id = parseInt(req.params.id);
-        try {
-            const user = await userRepository.findOne({ 
-                where: { id, state: true } })
-            return user
-                ? resp.json({ 
-                ok: true, user
-            }) 
-            : resp.json({ 
-                ok: false, 
-                message: "The id don't exist" 
-            });
-        } catch (error) {
-            return resp.json({ 
-                ok: false, 
-                message: `error = ${error.message}` 
-            });
-        }
-    }
-
-    static deleteUser = async(req:Request, resp:Response)=>{
-        const id = parseInt(req.params.id);
-        try {
-            const user = await userRepository.findOne({ 
-                where: { id, state: true }
-            })
-            if(!user){
-                throw new Error("Not found")
-            }
-            user.state = false;
-            await userRepository.save(user);
-            return resp.json({ 
-                ok: true, 
-                message: "User was delete"
-            })
-        } 
         catch (error) {
-            return resp.json({ 
-                ok: false, 
-                message: `error => ${error.message}` 
-            })
+            return res.json({
+                ok: false,
+                msg: `Error => ${error}`
+            });
         }
-    }
+    };
 
-    static updateUser = async(req:Request, resp:Response)=>{
+    // by-Id
+    static byIdUser = async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id);
+        const repoUser = AppDataSource.getRepository(User);
+        try {
+            const user = await repoUser.findOne({
+                where: { id, state: true },
+            });
+            // if (!user) {
+            //     throw new Error('This user don exist in data base')
+            // }
+            return user
+                ? res.json({ ok: true, user, msg: 'success' })
+                : res.json({ ok: false, msg: "The id don't exist" });
+        } catch (e) {
+            return res.json({
+                ok: false,
+                msg: `Server error => ${e}`
+            });
+        }
+    };
+    // update 
+    static updateUser = async (req: Request, res: Response) => {
         const id = parseInt(req.params.id)
-        const {name, email} = req.body
-        try{   
-            const user = await userRepository.findOne({ 
+        const repoUsers = AppDataSource.getRepository(User)
+        const repoRol = AppDataSource.getRepository(Role)
+        const { name, lastName, email, rolId } = req.body
+        let user: User
+
+        try {
+            user = await repoUsers.findOneOrFail({
                 where: { id, state: true },
             })
 
-            if(!name){
-                throw new Error('Not Found')
+            if (!user) {
+                throw new Error('User does not exist in the database')
             }
 
-            user.name = name,
-            user.email = email
-            await userRepository.save(user)
-            return resp.json({ 
-                ok: true, 
-                STATUS_CODE:200, 
-                message: 'User was updated', 
-                user
+            const existingUser = await repoUsers.findOne({
+                where: { email, id: Not(id) },
             })
-        }catch (error){
-            return resp.json ({
-                ok:false, 
-                STATUS_CODE:500,   
-                message: `error = ${error.message}`
+            if (existingUser) {
+                return res.json({
+                    ok: false,
+                    msg: `Email '${email}' already exists`
+                })
+            } 
+
+            const existingRol = await repoRol.findOne({ where: { id: rolId } })
+            if (!existingRol) {
+                return res.json({
+                    ok: false,
+                    msg: `Role with ID '${rolId}' does not exist`
+                })
+            }
+
+            user.name = name
+            user.lastName = lastName
+            user.email = email
+            user.rol = existingRol
+
+            await repoUsers.save(user)
+            return res.json({
+                ok: true,
+                msg: 'User  updated',
+                user: user,
+            })
+        } catch (error) {
+            return res.json({
+                ok: false,
+                msg: `Error -> ${error}`
             })
         }
     }
+
+    // delete
+    static deleteUser = async (req: Request, res: Response) => {
+        const id = parseInt(req.params.id);
+        const repoUser = AppDataSource.getRepository(User);
+        try {
+            const user = await repoUser.findOne({
+                where: { id, state: true },
+            });
+            if (!user) {
+                throw new Error("User don't exist in data base");
+            }
+            user.state = false;
+            await repoUser.save(user);
+            return res.json({
+                ok: true,
+                msg: "User was delete",
+            });
+        } catch (e) {
+            return res.json({
+                ok: false,
+                msg: `Server error => ${e}`
+            });
+        }
+    };
 }
 
-export default UserController;
+export default UsersController;

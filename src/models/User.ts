@@ -1,13 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, RelationId } from "typeorm";
-import { Rol } from "./Role";
+import { Role } from "./Role";
 
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
     id: number
 
-    @ManyToOne(() => Rol)
-    rol: Rol
+    @ManyToOne(() => Role)
+    rol: Role
 
     @RelationId((user: User) => user.rol)
     rolId: number

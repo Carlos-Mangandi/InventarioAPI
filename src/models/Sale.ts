@@ -1,6 +1,7 @@
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, RelationId } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, RelationId, CreateDateColumn } from "typeorm";
 import { User } from './User'
+import { Customer } from "./Customer";
 
 @Entity()
 export class Sale {
@@ -8,16 +9,16 @@ export class Sale {
     @PrimaryGeneratedColumn("increment")
     id: number
 
-    @ManyToOne(()=> User)
-    user: User
+    @ManyToOne(()=> Customer)
+    customer: Customer
 
-    @RelationId((sale: Sale)=> sale.user)
-    userId: number
+    @RelationId((sale: Sale)=> sale.customer)
+    customerId: number
 
-    @Column()
-    dateSale: string
+    @CreateDateColumn()
+    createDate: Date
 
-    @Column()
+    @Column({type:'decimal', precision: 5, scale:2, default:0,})
     total: number
 
     @Column({default:true})

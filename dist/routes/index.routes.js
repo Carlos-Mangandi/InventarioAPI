@@ -7,6 +7,7 @@ const express_1 = require("express");
 const dotenv_1 = __importDefault(require("dotenv"));
 const product_routes_1 = __importDefault(require("./product.routes"));
 const supplier_routes_1 = __importDefault(require("./supplier.routes"));
+const customer_routes_1 = __importDefault(require("./customer.routes"));
 // import routerSale from './sale.routes'
 // import routerSaleDetails from './saleDetails.routes'
 const user_routes_1 = __importDefault(require("./user.routes"));
@@ -16,6 +17,7 @@ const URL = process.env.url;
 const routes = (0, express_1.Router)();
 routes.use(`${URL}/supplier`, supplier_routes_1.default);
 routes.use(`${URL}/product`, product_routes_1.default);
+routes.use(`${URL}/customer`, customer_routes_1.default);
 // routes.use(`${URL}/sale`, routerSale)
 // routes.use(`${URL}/saleDetails`, routerSaleDetails)
 routes.use(`${URL}/user`, user_routes_1.default);

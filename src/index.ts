@@ -3,8 +3,6 @@ import Server from './server/server.js'
 import dotenv from 'dotenv'
 import { AppDataSource } from './data-source'
 
-
-
 dotenv.config()
 
 const server = new Server()
