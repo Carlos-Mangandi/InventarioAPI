@@ -18,7 +18,7 @@ export class Sale {
     @CreateDateColumn()
     createDate: Date
 
-    @Column({type:'decimal', precision: 5, scale:2, default:0,})
+    @Column({type:'decimal', precision: 6, scale:2, default:0,})
     total: number
 
     @Column({default:true})

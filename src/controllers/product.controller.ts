@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Product } from "../models/Product";
 import { Supplier } from "../models/Supplier";
-import { error } from "console";
-import { json } from "stream/consumers";
 import { Like } from "typeorm";
 
 const productRepository = AppDataSource.getRepository("Product");
@@ -36,11 +34,11 @@ class ProductController {
 
       const product = new Product();
 
-      (product.name = name),
-      (product.description = description),
-      (product.price = price),
-      (product.stock = stock),
-      (product.supplier = existingSupplier);
+      product.name = name,
+      product.description = description,
+      product.price = price,
+      product.stock = stock,
+      product.supplier = existingSupplier;
 
       await productRepository.save(product);
 
