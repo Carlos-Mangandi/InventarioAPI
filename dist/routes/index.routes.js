@@ -9,7 +9,7 @@ const product_routes_1 = __importDefault(require("./product.routes"));
 const supplier_routes_1 = __importDefault(require("./supplier.routes"));
 const customer_routes_1 = __importDefault(require("./customer.routes"));
 const sale_routes_1 = __importDefault(require("./sale.routes"));
-// import routerSaleDetails from './saleDetails.routes'
+const saleDetails_routes_1 = __importDefault(require("./saleDetails.routes"));
 const user_routes_1 = __importDefault(require("./user.routes"));
 const role_routes_1 = __importDefault(require("./role.routes"));
 dotenv_1.default.config();
@@ -19,7 +19,7 @@ routes.use(`${URL}/supplier`, supplier_routes_1.default);
 routes.use(`${URL}/product`, product_routes_1.default);
 routes.use(`${URL}/customer`, customer_routes_1.default);
 routes.use(`${URL}/sale`, sale_routes_1.default);
-// routes.use(`${URL}/saleDetails`, routerSaleDetails)
+routes.use(`${URL}/details`, saleDetails_routes_1.default);
 routes.use(`${URL}/user`, user_routes_1.default);
 routes.use(`${URL}/role`, role_routes_1.default);
 exports.default = routes;
